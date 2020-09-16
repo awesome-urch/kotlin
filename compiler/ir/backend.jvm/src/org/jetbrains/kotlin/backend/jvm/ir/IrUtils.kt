@@ -62,7 +62,6 @@ fun IrType.eraseTypeParameters() = when (this) {
     is IrSimpleType ->
         when (val owner = classifier.owner) {
             is IrClass -> IrSimpleTypeImpl(
-                null, // originalKotlinType is not used after Psi2Ir
                 classifier,
                 hasQuestionMark,
                 arguments.map { it.eraseTypeParameters() },

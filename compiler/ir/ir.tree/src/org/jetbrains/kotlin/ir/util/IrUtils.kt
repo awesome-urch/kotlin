@@ -19,8 +19,6 @@ import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.SpecialNames
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.utils.DFS
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 
@@ -155,25 +153,6 @@ fun IrExpression.isTrueConst() = this is IrConst<*> && this.kind == IrConstKind.
 fun IrExpression.isFalseConst() = this is IrConst<*> && this.kind == IrConstKind.Boolean && this.value == false
 
 fun IrExpression.isIntegerConst(value: Int) = this is IrConst<*> && this.kind == IrConstKind.Int && this.value == value
-
-@OptIn(ObsoleteDescriptorBasedAPI::class)
-fun IrExpression.coerceToUnitViaKotlinType(builtins: IrBuiltIns): IrExpression {
-    return coerceToUnitIfNeeded(type.toKotlinType(), builtins)
-}
-
-@ObsoleteDescriptorBasedAPI
-fun IrExpression.coerceToUnitIfNeeded(valueType: KotlinType, irBuiltIns: IrBuiltIns): IrExpression {
-    return if (KotlinTypeChecker.DEFAULT.isSubtypeOf(valueType, irBuiltIns.unitType.toKotlinType()))
-        this
-    else
-        IrTypeOperatorCallImpl(
-            startOffset, endOffset,
-            irBuiltIns.unitType,
-            IrTypeOperator.IMPLICIT_COERCION_TO_UNIT,
-            irBuiltIns.unitType,
-            this
-        )
-}
 
 fun IrExpression.coerceToUnit(builtins: IrBuiltIns): IrExpression {
     return coerceToUnitIfNeeded(type, builtins)
